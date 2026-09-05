@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     /* =========================
-       HEADER
+       HEADER SCROLL
     ========================= */
 
     const header = document.getElementById("header");
 
-    function updateHeader() {
+    function handleHeader() {
 
         if (window.scrollY > 50) {
             header.classList.add("scrolled");
@@ -16,40 +16,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    window.addEventListener("scroll", updateHeader);
-
-    updateHeader();
+    window.addEventListener("scroll", handleHeader);
+    handleHeader();
 
 
     /* =========================
        MOBILE MENU
     ========================= */
 
-    const menuToggle = document.getElementById("menuToggle");
+    const menuButton = document.getElementById("menuButton");
     const mobileMenu = document.getElementById("mobileMenu");
 
-    menuToggle.addEventListener("click", () => {
+    menuButton.addEventListener("click", () => {
 
-        menuToggle.classList.toggle("active");
-
+        menuButton.classList.toggle("active");
         mobileMenu.classList.toggle("open");
-
         document.body.classList.toggle("menu-open");
 
     });
 
 
-    const mobileLinks =
-        mobileMenu.querySelectorAll("a");
+    const mobileLinks = mobileMenu.querySelectorAll("a");
 
     mobileLinks.forEach(link => {
 
         link.addEventListener("click", () => {
 
-            menuToggle.classList.remove("active");
-
+            menuButton.classList.remove("active");
             mobileMenu.classList.remove("open");
-
             document.body.classList.remove("menu-open");
 
         });
@@ -58,66 +52,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =========================
-       CURSOR
+       CUSTOM CURSOR
     ========================= */
 
     const cursor = document.querySelector(".cursor");
+    const follower = document.querySelector(".cursor-follower");
 
-    if (cursor && window.innerWidth > 800) {
+    if (cursor && follower && window.innerWidth > 700) {
 
         let mouseX = 0;
         let mouseY = 0;
 
-        let currentX = 0;
-        let currentY = 0;
+        let followerX = 0;
+        let followerY = 0;
 
-        document.addEventListener("mousemove", event => {
+        document.addEventListener("mousemove", e => {
 
-            mouseX = event.clientX;
-            mouseY = event.clientY;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            cursor.style.left = mouseX + "px";
+            cursor.style.top = mouseY + "px";
 
         });
 
 
-        function animateCursor() {
+        function animateFollower() {
 
-            currentX +=
-                (mouseX - currentX) * 0.2;
+            followerX += (mouseX - followerX) * 0.12;
+            followerY += (mouseY - followerY) * 0.12;
 
-            currentY +=
-                (mouseY - currentY) * 0.2;
+            follower.style.left = followerX + "px";
+            follower.style.top = followerY + "px";
 
-            cursor.style.left = currentX + "px";
-            cursor.style.top = currentY + "px";
-
-            requestAnimationFrame(animateCursor);
+            requestAnimationFrame(animateFollower);
 
         }
 
-        animateCursor();
+        animateFollower();
+
+
+        const hoverElements = document.querySelectorAll(
+            "a, button, .service-card, .gallery-item"
+        );
+
+        hoverElements.forEach(element => {
+
+            element.addEventListener("mouseenter", () => {
+                document.body.classList.add("cursor-hover");
+            });
+
+            element.addEventListener("mouseleave", () => {
+                document.body.classList.remove("cursor-hover");
+            });
+
+        });
 
     }
 
 
     /* =========================
-       REVEAL ON SCROLL
+       SCROLL REVEAL
     ========================= */
 
     const revealElements = document.querySelectorAll(
-        ".intro-title, .intro-copy, .intro-image, .experience-card, .review-card, .contact-info, .contact-map"
+        ".intro-left, .intro-right, .service-card, .philosophy-point, .philosophy-image, .review, .contact-info, .contact-map"
     );
 
-
     revealElements.forEach(element => {
-
-        element.style.opacity = "0";
-
-        element.style.transform =
-            "translateY(35px)";
-
-        element.style.transition =
-            "opacity .8s ease, transform .8s ease";
-
+        element.classList.add("reveal");
     });
 
 
@@ -128,10 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (entry.isIntersecting) {
 
-                    entry.target.style.opacity = "1";
-
-                    entry.target.style.transform =
-                        "translateY(0)";
+                    entry.target.classList.add("visible");
 
                     observer.unobserve(entry.target);
 
@@ -147,53 +147,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     revealElements.forEach(element => {
-
         observer.observe(element);
+    });
+
+
+    /* =========================
+       STAGGER SERVICES
+    ========================= */
+
+    const serviceCards = document.querySelectorAll(".service-card");
+
+    serviceCards.forEach((card, index) => {
+
+        card.style.transitionDelay = `${index * 0.08}s`;
 
     });
 
 
     /* =========================
-       STAGGER CARDS
+       PARALLAX HERO
     ========================= */
 
-    document
-        .querySelectorAll(".experience-card")
-        .forEach((card, index) => {
-
-            card.style.transitionDelay =
-                `${index * 0.1}s`;
-
-        });
-
-
-    document
-        .querySelectorAll(".review-card")
-        .forEach((card, index) => {
-
-            card.style.transitionDelay =
-                `${index * 0.1}s`;
-
-        });
-
-
-    /* =========================
-       PARALLAX
-    ========================= */
-
-    const heroImage =
-        document.querySelector(".hero-background img");
+    const heroImage = document.querySelector(".hero-image img");
 
     if (heroImage) {
 
         window.addEventListener("scroll", () => {
 
-            const scrollY = window.scrollY;
+            const scroll = window.scrollY;
 
-            if (scrollY < window.innerHeight) {
+            if (scroll < window.innerHeight) {
 
                 heroImage.style.transform =
-                    `scale(1) translateY(${scrollY * 0.08}px)`;
+                    `scale(1) translateY(${scroll * 0.08}px)`;
 
             }
 
@@ -203,78 +189,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =========================
-       SMOOTH ANCHORS
+       PHONE CTA
     ========================= */
 
-    document
-        .querySelectorAll('a[href^="#"]')
-        .forEach(anchor => {
+    const phoneButtons = document.querySelectorAll(
+        'a[href^="tel:"]'
+    );
 
-            anchor.addEventListener("click", event => {
+    phoneButtons.forEach(button => {
 
-                const id =
-                    anchor.getAttribute("href");
+        button.addEventListener("click", () => {
 
-                if (!id || id === "#") return;
+            if (typeof gtag === "function") {
+                gtag("event", "phone_click", {
+                    event_category: "contact"
+                });
+            }
 
-                const target =
-                    document.querySelector(id);
+        });
 
-                if (!target) return;
+    });
 
-                event.preventDefault();
 
-                const offset = 70;
+    /* =========================
+       SMOOTH INTERNAL LINKS
+    ========================= */
 
-                const targetPosition =
-                    target.getBoundingClientRect().top +
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+
+        anchor.addEventListener("click", function(e) {
+
+            const targetId = this.getAttribute("href");
+
+            if (targetId === "#") return;
+
+            const target = document.querySelector(targetId);
+
+            if (target) {
+
+                e.preventDefault();
+
+                const headerOffset = 70;
+
+                const elementPosition =
+                    target.getBoundingClientRect().top;
+
+                const offsetPosition =
+                    elementPosition +
                     window.scrollY -
-                    offset;
+                    headerOffset;
 
                 window.scrollTo({
-                    top: targetPosition,
+                    top: offsetPosition,
                     behavior: "smooth"
                 });
 
-            });
+            }
 
         });
 
-
-    /* =========================
-       IMAGE HOVER EFFECT
-    ========================= */
-
-    document
-        .querySelectorAll(".gallery-item, .experience-card")
-        .forEach(element => {
-
-            element.addEventListener("mouseenter", () => {
-
-                element.style.willChange =
-                    "transform";
-
-            });
-
-        });
-
-
-    /* =========================
-       TELEPHONE TRACKING
-    ========================= */
-
-    document
-        .querySelectorAll('a[href^="tel:"]')
-        .forEach(button => {
-
-            button.addEventListener("click", () => {
-
-                console.log(
-                    "Contacto telefónico iniciado"
-                );
-
-            });
-
-        });
+    });
 
 });
